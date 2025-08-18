@@ -56,10 +56,11 @@ int main( int argc, char* args[] ) {
             SDL_ConvertSurfaceFormat(IMG_Load("D:/Ci/sg_test/pics/wood.png"), SDL_PIXELFORMAT_ARGB8888, 0)
     };
 
-    const uint32_t DISTANCE_TO_PLANE = (uint32_t)((SCREEN_WIDTH / 2.0) / tan(HALF_FOV));
 
     plane_length = tan(HALF_FOV);
     plane_x = 1; plane_y = 0;
+
+    const uint32_t DISTANCE_TO_PLANE = (uint32_t)((SCREEN_WIDTH / 2.0) / plane_length);
 
     uint32_t colors[4] = {
             red,

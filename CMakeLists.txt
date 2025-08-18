@@ -14,7 +14,6 @@ find_package(SDL2_image REQUIRED)
 
 include_directories(${SDL2_INCLUDE_DIRS})
 
-
 add_executable(sg_test "src/main.c" "src/structs.h" "src/init.h" "src/init.c" "src/defs.h" "src/input.h" "src/input.c" "src/draw.h" "src/draw.c" "src/defs.c" "src/raycast.h" "src/raycast.c"
         "src/timer.c")
 
