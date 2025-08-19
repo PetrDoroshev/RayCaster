@@ -40,27 +40,28 @@ int map[MAP_WIDTH][MAP_HEIGHT] = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-double plane_x, plane_y, plane_length;
+double plane_x, plane_y, PLANE_LENGTH;
 
 void movePLayer();
 double getLength(double x, double y);
+SDL_Surface* loadImage(char const *path);
 
 int main( int argc, char* args[] ) {
 
 
     SDL_Surface* textures[] = {
-            
-            SDL_ConvertSurfaceFormat(IMG_Load("D:/Ci/sg_test/pics/redbrick.png"), SDL_PIXELFORMAT_ARGB8888, 0),
-            SDL_ConvertSurfaceFormat(IMG_Load("D:/Ci/sg_test/pics/bluestone.png"), SDL_PIXELFORMAT_ARGB8888, 0),
-            SDL_ConvertSurfaceFormat(IMG_Load("D:/Ci/sg_test/pics/colorstone.png"), SDL_PIXELFORMAT_ARGB8888, 0),
-            SDL_ConvertSurfaceFormat(IMG_Load("D:/Ci/sg_test/pics/wood.png"), SDL_PIXELFORMAT_ARGB8888, 0)
+        
+            SDL_ConvertSurfaceFormat(loadImage("D:/Ci/sg_test/pics/redbrick.png"), SDL_PIXELFORMAT_ARGB8888, 0),
+            SDL_ConvertSurfaceFormat(loadImage("D:/Ci/sg_test/pics/bluestone.png"), SDL_PIXELFORMAT_ARGB8888, 0),
+            SDL_ConvertSurfaceFormat(loadImage("D:/Ci/sg_test/pics/colorstone.png"), SDL_PIXELFORMAT_ARGB8888, 0),
+            SDL_ConvertSurfaceFormat(loadImage("D:/Ci/sg_test/pics/wood.png"), SDL_PIXELFORMAT_ARGB8888, 0)
     };
 
 
-    plane_length = tan(HALF_FOV);
+    PLANE_LENGTH = tan(HALF_FOV);
     plane_x = 1; plane_y = 0;
 
-    const uint32_t DISTANCE_TO_PLANE = (uint32_t)((SCREEN_WIDTH / 2.0) / plane_length);
+    const uint32_t DISTANCE_TO_PLANE = (uint32_t)((SCREEN_WIDTH / 2.0) / PLANE_LENGTH);
 
     uint32_t colors[4] = {
             red,
@@ -178,6 +179,8 @@ int main( int argc, char* args[] ) {
 }
 
 
+
+
 void movePLayer(){
 
     if (app.keyboard[SDL_SCANCODE_W]) {
@@ -222,8 +225,8 @@ void movePLayer(){
         player.dir_x = player.dir_x * cos(player.rotation_speed) - player.dir_y * sin(player.rotation_speed);
         player.dir_y = player.dir_y * cos(player.rotation_speed) + dir_x_tmp * sin(player.rotation_speed);
 
-        plane_x = plane_length * (player.dir_y);
-        plane_y = plane_length * (-player.dir_x);
+        plane_x = PLANE_LENGTH * (player.dir_y);
+        plane_y = PLANE_LENGTH * (-player.dir_x);
 
     }
     
@@ -232,13 +235,24 @@ void movePLayer(){
         player.dir_x = player.dir_x * cos(player.rotation_speed) + player.dir_y * sin(player.rotation_speed);
         player.dir_y = player.dir_y * cos(player.rotation_speed) - dir_x_tmp * sin(player.rotation_speed);
 
-        plane_x = plane_length * (player.dir_y);
-        plane_y = plane_length * (-player.dir_x);
+        plane_x = PLANE_LENGTH * (player.dir_y);
+        plane_y = PLANE_LENGTH * (-player.dir_x);
     }
 }
 
 double getLength(double x, double y) {
     return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+SDL_Surface* loadImage(char const *path) {
+
+    SDL_Surface* surface = IMG_Load(path);
+    
+    if ( surface == NULL ){
+        printf( "Unable to load image %s! SDL_image Error: %s\n", path, IMG_GetError() );
+    }
+
+    return surface;
 }
 
 
