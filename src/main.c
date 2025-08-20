@@ -48,14 +48,16 @@ SDL_Surface* loadImage(char const *path);
 
 int main( int argc, char* args[] ) {
 
-
-    SDL_Surface* textures[] = {
+    SDL_Surface *textures[] = {
         
-            SDL_ConvertSurfaceFormat(loadImage("D:/Ci/sg_test/pics/redbrick.png"), SDL_PIXELFORMAT_ARGB8888, 0),
-            SDL_ConvertSurfaceFormat(loadImage("D:/Ci/sg_test/pics/bluestone.png"), SDL_PIXELFORMAT_ARGB8888, 0),
-            SDL_ConvertSurfaceFormat(loadImage("D:/Ci/sg_test/pics/colorstone.png"), SDL_PIXELFORMAT_ARGB8888, 0),
-            SDL_ConvertSurfaceFormat(loadImage("D:/Ci/sg_test/pics/wood.png"), SDL_PIXELFORMAT_ARGB8888, 0)
+            SDL_ConvertSurfaceFormat(loadImage("../../../pics/redbrick.png"), SDL_PIXELFORMAT_ARGB8888, 0),
+            SDL_ConvertSurfaceFormat(loadImage("../../../pics/bluestone.png"), SDL_PIXELFORMAT_ARGB8888, 0),
+            SDL_ConvertSurfaceFormat(loadImage("../../../pics/colorstone.png"), SDL_PIXELFORMAT_ARGB8888, 0),
+            SDL_ConvertSurfaceFormat(loadImage("../../../pics/wood.png"), SDL_PIXELFORMAT_ARGB8888, 0)
     };
+
+
+    SDL_Surface *floor_texture = SDL_ConvertSurfaceFormat(loadImage("../../../pics/wood.png"), SDL_PIXELFORMAT_ARGB8888, 0);
 
 
     PLANE_LENGTH = tan(HALF_FOV);
@@ -94,6 +96,8 @@ int main( int argc, char* args[] ) {
 
             double side_dist_x, side_dist_y, wall_distance;
             uint32_t step_x, step_y;
+
+            //wall casting
 
             if (ray_dir_y > 0) {
                 step_y = -1;
@@ -139,7 +143,7 @@ int main( int argc, char* args[] ) {
             else
                 wall_distance = fabs((player.dir_y * ray_dir_y + player.dir_x * ray_dir_x) * side_dist_y);
 
-            uint32_t height = (uint32_t)((1 / wall_distance) * DISTANCE_TO_PLANE);
+            uint32_t wall_height = (uint32_t)((1 / wall_distance) * DISTANCE_TO_PLANE);
 
             double wall_x;
 
@@ -160,7 +164,15 @@ int main( int argc, char* args[] ) {
             wall_x -= floor(wall_x);
             uint32_t tex_x = (uint32_t)(textures[0]->w * wall_x);
 
-            drawTextureSlice(app.pixels, textures[map[map_y][map_x] - 1], ray_count, tex_x, side, height);
+            drawTextureSlice(app.pixels, textures[map[map_y][map_x] - 1], ray_count, tex_x, side, wall_height);
+
+            
+            //floor casting
+            for (uint32_t h = SCREEN_HEIGHT_HALF + wall_height / 2; h < SCREEN_HEIGHT; h++) {
+                
+
+
+            }
         }
 
         SDL_Event event;
