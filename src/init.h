@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <stdio.h>
+#include "SDL2/SDL_ttf.h"
 #include "defs.h"
 #include "structs.h"
 

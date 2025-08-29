@@ -14,6 +14,11 @@ void initApp(App* app){
         exit(1);
     }
 
+    if (TTF_Init() < 0) {
+		printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
+		exit(1);
+	}
+
     app->window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
     if ( app->window == NULL )

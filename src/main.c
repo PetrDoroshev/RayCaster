@@ -8,6 +8,7 @@
 #include "input.h"
 #include "draw.h"
 #include "timer.h"
+#include <unistd.h>
 
 Player player = {4.5, 3.5, 0, 1, 0.11, (PI * 6) / 180};
 App app;
@@ -59,24 +60,20 @@ int main( int argc, char* args[] ) {
 
     SDL_Surface *floor_texture = SDL_ConvertSurfaceFormat(loadImage("../../../pics/wood.png"), SDL_PIXELFORMAT_ARGB8888, 0);
 
+    Timer timer = {0, 0};
+    uint32_t frames_n = 0;
+    char fps_text[10];
 
-    PLANE_LENGTH = tan(HALF_FOV);
-    plane_x = 1; plane_y = 0;
-
-    const uint32_t DISTANCE_TO_PLANE = (uint32_t)((SCREEN_WIDTH / 2.0) / PLANE_LENGTH);
-
-    uint32_t colors[4] = {
-            red,
-            green,
-            blue,
-            white
-    };
+    const double DISTANCE_TO_PLANE = (SCREEN_WIDTH_HALF / tan(HALF_FOV));
 
     initApp(&app);
     SDL_bool done = SDL_FALSE;
 
-    while (!done) {
+    startTimer(&timer);
 
+    while (!done) {
+        //SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 0);
+        //SDL_RenderClear(app.renderer);
         prepareScene(app.pixels, black);
         movePLayer();
 
@@ -84,15 +81,15 @@ int main( int argc, char* args[] ) {
 
             char hit = 0, side;
 
-            double camera_x = 2.0 * ray_count / SCREEN_WIDTH - 1;
-            double ray_dir_x = player.dir_x + plane_x * camera_x;
-            double ray_dir_y = player.dir_y + plane_y * camera_x;
+            double ray_sin = (SCREEN_WIDTH_HALF - ray_count) / DISTANCE_TO_PLANE;
+            double ray_dir_x = player.dir_x - ray_sin * player.dir_y;
+            double ray_dir_y = ray_sin * player.dir_x + player.dir_y;
 
             uint32_t map_x = (uint32_t)player.x;
             uint32_t map_y = (uint32_t)player.y;
 
-            double delta_dist_x = fabs(1 / ray_dir_x);
-            double delta_dist_y = fabs(1 / ray_dir_y);
+            double delta_dist_x = (ray_dir_x == 0) ? 1e30 : fabs(1 / ray_dir_x);
+            double delta_dist_y = (ray_dir_y == 0) ? 1e30 : fabs(1 / ray_dir_y);
 
             double side_dist_x, side_dist_y, wall_distance;
             uint32_t step_x, step_y;
@@ -138,21 +135,28 @@ int main( int argc, char* args[] ) {
             side_dist_x -= delta_dist_x;
             side_dist_y -= delta_dist_y;
 
-            if (side == 0)
+            if (side == 0) {
                 wall_distance = fabs((player.dir_y * ray_dir_y + player.dir_x * ray_dir_x) * side_dist_x);
-            else
+                //drawRayOnMap(app.renderer, ray_dir_x, ray_dir_y, side_dist_x, player.x, player.y);
+            }
+            else {
                 wall_distance = fabs((player.dir_y * ray_dir_y + player.dir_x * ray_dir_x) * side_dist_y);
+                //drawRayOnMap(app.renderer, ray_dir_x, ray_dir_y, side_dist_y, player.x, player.y);
+            }
+            //drawRayOnMap(app.renderer, ray_dir_x, ray_dir_y, wall_distance, player.x, player.y);
 
             uint32_t wall_height = (uint32_t)((1 / wall_distance) * DISTANCE_TO_PLANE);
-
+            
             double wall_x;
 
             if (side == 0) {
                 wall_x = player.y - wall_distance * ray_dir_y;
             }
-            else {
+            else {  
                 wall_x = player.x + wall_distance * ray_dir_x;
             }
+
+            //printf("ray_count = %d, ray_dir_x = %lf, ray_dir_y = %lf, wall_x = %lf\n", ray_count, ray_dir_x, ray_dir_y, wall_x);
 
             if (side == 0 && ray_dir_x > 0) {
                 wall_x = textures[0]->w - wall_x - 1;
@@ -165,25 +169,51 @@ int main( int argc, char* args[] ) {
             uint32_t tex_x = (uint32_t)(textures[0]->w * wall_x);
 
             drawTextureSlice(app.pixels, textures[map[map_y][map_x] - 1], ray_count, tex_x, side, wall_height);
+      
+            //floor casting  
+                      
+            double pos_z = SCREEN_HEIGHT_HALF;
+            double floor_x, floor_y;
+            uint32_t floor_tex_x, floor_tex_y;
 
-            
-            //floor casting
             for (uint32_t h = SCREEN_HEIGHT_HALF + wall_height / 2; h < SCREEN_HEIGHT; h++) {
                 
+                uint32_t row = h - SCREEN_HEIGHT_HALF;
 
-
+                double dist_y = (pos_z * DISTANCE_TO_PLANE) / row;
+                dist_y /= SCREEN_HEIGHT;
+                
+                
             }
+               
+            double ray_angle = (acos(ray_dir_x) * (180 / PI));
+            //printf("ray_angle = %lf\n", ray_angle);
+            //printf("player.dir_x = %lf, player.dir_y = %lf\n", player.dir_x, player.dir_y);
         }
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
+            
             if (event.type == SDL_QUIT){
                 done = SDL_TRUE;
             }
             doInput(event, app.keyboard);
         }
-        drawMap(app.renderer, map);
+
+        //drawMap(app.renderer, map);
+        //drawPlayerOnMap(app.renderer, player.x, player.y);
         presentScene(app.renderer, app.texture, app.pixels);
+
+
+        frames_n++;
+
+        uint32_t avg_fps = frames_n / ( getTicks(&timer) / 1000.f );
+        if( avg_fps > 2000000 ) {
+            avg_fps = 0;
+        }
+
+        //sprintf(fps_text, "%d", avg_fps);
+
     }
 
     quitApp(&app);
@@ -236,19 +266,12 @@ void movePLayer(){
         double dir_x_tmp = player.dir_x;
         player.dir_x = player.dir_x * cos(player.rotation_speed) - player.dir_y * sin(player.rotation_speed);
         player.dir_y = player.dir_y * cos(player.rotation_speed) + dir_x_tmp * sin(player.rotation_speed);
-
-        plane_x = PLANE_LENGTH * (player.dir_y);
-        plane_y = PLANE_LENGTH * (-player.dir_x);
-
     }
     
     if (app.keyboard[SDL_SCANCODE_RIGHT]) {
         double dir_x_tmp = player.dir_x;
         player.dir_x = player.dir_x * cos(player.rotation_speed) + player.dir_y * sin(player.rotation_speed);
         player.dir_y = player.dir_y * cos(player.rotation_speed) - dir_x_tmp * sin(player.rotation_speed);
-
-        plane_x = PLANE_LENGTH * (player.dir_y);
-        plane_y = PLANE_LENGTH * (-player.dir_x);
     }
 }
 
@@ -260,7 +283,7 @@ SDL_Surface* loadImage(char const *path) {
 
     SDL_Surface* surface = IMG_Load(path);
     
-    if ( surface == NULL ){
+    if (surface == NULL) {
         printf( "Unable to load image %s! SDL_image Error: %s\n", path, IMG_GetError() );
     }
 

@@ -8,7 +8,7 @@ typedef struct {
     SDL_Window* window;
     SDL_Texture* texture;
     uint32_t pixels[SCREEN_HEIGHT * SCREEN_WIDTH];
-    int keyboard[MAX_KEYBOARD_KEYS];
+    uint32_t keyboard[MAX_KEYBOARD_KEYS];
 } App;
 
 typedef struct {

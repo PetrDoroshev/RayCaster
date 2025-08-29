@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 void drawMap(SDL_Renderer* renderer, int map[MAP_WIDTH][MAP_HEIGHT]) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     for (int i = 0; i < MAP_HEIGHT; i++){
         for (int k = 0; k < MAP_WIDTH; k++){
             if (map[i][k] > 0){
@@ -19,7 +19,7 @@ void drawMap(SDL_Renderer* renderer, int map[MAP_WIDTH][MAP_HEIGHT]) {
 }
 
 void drawPlayerOnMap(SDL_Renderer* renderer, int player_x, int player_y){
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_Rect rect = {MINIMAP_X + (player_x * MINIMAP_CELL_SIZE) / TILE_SIZE,
                      MINIMAP_Y + (player_y * MINIMAP_CELL_SIZE) / TILE_SIZE,
                      MINIMAP_CELL_SIZE / 2,
@@ -27,17 +27,17 @@ void drawPlayerOnMap(SDL_Renderer* renderer, int player_x, int player_y){
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void drawRayOnMap(SDL_Renderer* renderer, double ray_dir_x, double ray_dir_y, double ray_length, int player_x, int player_y){
-    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 0);
+void drawRayOnMap(SDL_Renderer* renderer, double ray_dir_x, double ray_dir_y, double ray_length, double player_x, double player_y){
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 
-    float player_map_x = MINIMAP_X + (float)(player_x * MINIMAP_CELL_SIZE) / TILE_SIZE;
-    float player_map_y = MINIMAP_Y + (float)(player_y * MINIMAP_CELL_SIZE) / TILE_SIZE;
+    double player_map_x = MINIMAP_X + (player_x * MINIMAP_CELL_SIZE) / TILE_SIZE;
+    double player_map_y = MINIMAP_Y + (player_y * MINIMAP_CELL_SIZE) / TILE_SIZE;
 
     ray_length = (ray_length * MINIMAP_CELL_SIZE) / TILE_SIZE;
 
     SDL_RenderDrawLineF(renderer,
-                        player_map_x,
-                        player_map_y,
+                        (float)player_map_x - MINIMAP_CELL_SIZE / 2,
+                        (float)player_map_y - MINIMAP_CELL_SIZE / 2,
                         (float)(player_map_x + ray_length * ray_dir_x),
                         (float)(player_map_y - ray_length * ray_dir_y));
 
@@ -96,6 +96,7 @@ void prepareScene(uint32_t *pixels, uint32_t color) {
 }
 
 void presentScene(SDL_Renderer* renderer, SDL_Texture* texture, uint32_t* pixels) {
+    
     SDL_UpdateTexture(texture, NULL, pixels, SCREEN_WIDTH * sizeof(uint32_t));
     SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0.0, NULL, SDL_FLIP_NONE);
     SDL_RenderPresent(renderer);

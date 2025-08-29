@@ -11,10 +11,11 @@ set(CMAKE_C_STANDARD 11)
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 
-include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${SDL2_INCLUDE_DIRS}) 
 
 add_executable(sg_test "src/main.c" "src/structs.h" "src/init.h" "src/init.c" "src/defs.h" "src/input.h" "src/input.c" "src/draw.h" "src/draw.c" "src/defs.c" "src/raycast.h" "src/raycast.c"
         "src/timer.c")
 
-target_link_libraries(sg_test SDL2main SDL2 SDL2_image)
+target_link_libraries(sg_test SDL2main SDL2 SDL2_image SDL2_ttf)
