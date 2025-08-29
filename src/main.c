@@ -41,11 +41,10 @@ int map[MAP_WIDTH][MAP_HEIGHT] = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-double plane_x, plane_y, PLANE_LENGTH;
-
 void movePLayer();
 double getLength(double x, double y);
 SDL_Surface* loadImage(char const *path);
+double dot(double x1, double y1, double x2, double y2);
 
 int main( int argc, char* args[] ) {
 
@@ -136,11 +135,11 @@ int main( int argc, char* args[] ) {
             side_dist_y -= delta_dist_y;
 
             if (side == 0) {
-                wall_distance = fabs((player.dir_y * ray_dir_y + player.dir_x * ray_dir_x) * side_dist_x);
+                wall_distance = fabs(dot(player.dir_x, player.dir_y, ray_dir_x, ray_dir_y) * side_dist_x);
                 //drawRayOnMap(app.renderer, ray_dir_x, ray_dir_y, side_dist_x, player.x, player.y);
             }
             else {
-                wall_distance = fabs((player.dir_y * ray_dir_y + player.dir_x * ray_dir_x) * side_dist_y);
+                wall_distance = fabs(dot(player.dir_x, player.dir_y, ray_dir_x, ray_dir_y) * side_dist_y);
                 //drawRayOnMap(app.renderer, ray_dir_x, ray_dir_y, side_dist_y, player.x, player.y);
             }
             //drawRayOnMap(app.renderer, ray_dir_x, ray_dir_y, wall_distance, player.x, player.y);
@@ -182,7 +181,10 @@ int main( int argc, char* args[] ) {
 
                 double dist_y = (pos_z * DISTANCE_TO_PLANE) / row;
                 dist_y /= SCREEN_HEIGHT;
+
+
                 
+
                 
             }
                
@@ -277,6 +279,12 @@ void movePLayer(){
 
 double getLength(double x, double y) {
     return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+double dot(double x1, double y1, double x2, double y2) {
+
+    return x1 * x2 + y1 * y2;
+
 }
 
 SDL_Surface* loadImage(char const *path) {
